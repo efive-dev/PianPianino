@@ -12,6 +12,7 @@ func main() {
 	database.InitDB()
 	models.Migrate()
 	e := echo.New()
+
 	routes.SetupRoutes(e)
 	e.Logger.Fatal(e.Start(":1323"))
 }
