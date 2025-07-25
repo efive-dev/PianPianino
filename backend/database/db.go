@@ -3,9 +3,8 @@ package database
 import (
 	"database/sql"
 	"log"
-	"os"
+	"pianpianino/helpers"
 
-	"github.com/joho/godotenv"
 	"github.com/uptrace/bun"
 	"github.com/uptrace/bun/dialect/sqlitedialect"
 	"github.com/uptrace/bun/driver/sqliteshim"
@@ -14,16 +13,8 @@ import (
 
 var DB *bun.DB
 
-func loadConfig() string {
-	err := godotenv.Load("./../.env")
-	if err != nil {
-		log.Fatal("error loading the config file")
-	}
-	return os.Getenv("DATABASE_DSN")
-}
-
 func InitDB() *bun.DB {
-	dsn := loadConfig()
+	dsn := helpers.LoadConfig("DATABASE_DSN")
 	if dsn == "" {
 		log.Fatal("error loading the dsn")
 	}
