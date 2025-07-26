@@ -50,17 +50,14 @@
     </n-card>
   </div>
 </template>
-
 <script setup>
 import { ref } from "vue";
 import { NForm, NFormItem, NInput, NButton, NCard, NAlert } from "naive-ui";
 import axios from "axios";
-
 const form = ref({
   username: "",
   password: "",
 });
-
 const rules = {
   username: {
     required: true,
@@ -73,21 +70,16 @@ const rules = {
     trigger: ["blur", "input"],
   },
 };
-
 const formRef = ref(null);
 const errorMessage = ref("");
 const successMessage = ref("");
 const loading = ref(false);
-
 const handleRegister = async () => {
   errorMessage.value = "";
   successMessage.value = "";
-
   const valid = await formRef.value?.validate();
   if (!valid) return;
-
   loading.value = true;
-
   try {
     const response = await axios.post(
       "http://localhost:1323/register",
@@ -103,39 +95,136 @@ const handleRegister = async () => {
   }
 };
 </script>
-
 <style scoped>
 .register-container {
   display: flex;
   justify-content: center;
   align-items: center;
   min-height: 100vh;
-  background-color: #f9fafb;
+  background: linear-gradient(
+    135deg,
+    #ffffff 0%,
+    var(--isabelline) 30%,
+    #ffffff 100%
+  );
+  background-attachment: fixed;
   padding: 2rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.register-container::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: radial-gradient(
+      circle at 20% 80%,
+      rgba(242, 233, 228, 0.2) 0%,
+      transparent 60%
+    ),
+    radial-gradient(
+      circle at 80% 20%,
+      rgba(201, 173, 167, 0.15) 0%,
+      transparent 50%
+    ),
+    radial-gradient(
+      circle at 40% 40%,
+      rgba(154, 140, 152, 0.08) 0%,
+      transparent 70%
+    );
+  pointer-events: none;
 }
 
 .register-card {
   width: 100%;
-  max-width: 400px;
-  border-radius: 16px;
-  box-shadow: 0 4px 14px rgba(82, 53, 123, 0.1);
-  background-color: #ffffff;
-  border: 1px solid #b2d8ce;
+  max-width: 25rem; /* 400px = 25rem */
+  border-radius: 1rem; /* 16px = 1rem */
+  box-shadow: 0 0.25rem 1.25rem rgba(34, 34, 59, 0.1); /* 4px 20px */
+  background-color: white;
+  border: 0.125rem solid var(--pale-dogwood); /* 2px = 0.125rem */
+  position: relative;
+  z-index: 1;
+}
+
+.register-card :deep(.n-card-header) {
+  color: var(--space-cadet);
+  font-weight: 600;
+  font-size: 1.5rem;
+  text-align: center;
+}
+
+.register-card :deep(.n-form-item-label) {
+  color: var(--ultra-violet);
+  font-weight: 500;
+}
+
+.register-card :deep(.n-input) {
+  border-color: var(--rose-quartz);
+  border-radius: 0.5rem; /* 8px */
+}
+
+.register-card :deep(.n-input:hover) {
+  border-color: var(--ultra-violet);
+}
+
+.register-card :deep(.n-input:focus-within) {
+  border-color: var(--ultra-violet);
+  box-shadow: 0 0 0 0.125rem rgba(74, 78, 105, 0.2); /* 2px */
 }
 
 .register-card :deep(.n-button) {
-  background-color: #52357b;
+  background-color: var(--ultra-violet);
   color: white;
-  border-radius: 8px;
-  transition: background-color 0.3s ease;
+  border-radius: 0.5rem; /* 8px */
+  border: none;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  margin-top: 1rem;
 }
 
 .register-card :deep(.n-button:hover) {
-  background-color: #5459ac;
+  background-color: var(--space-cadet);
+  transform: translateY(-0.0625rem); /* -1px */
+  box-shadow: 0 0.25rem 0.75rem rgba(74, 78, 105, 0.3); /* 4px 12px */
+}
+
+.register-card :deep(.n-button:active) {
+  transform: translateY(0);
+}
+
+.register-card :deep(.n-button--loading) {
+  background-color: var(--rose-quartz);
 }
 
 .error-alert,
 .success-alert {
   margin-top: 1rem;
+  border-radius: 0.5rem; /* 8px */
+}
+
+.register-card :deep(.n-alert--error-type) {
+  background-color: rgba(193, 18, 31, 0.1);
+  border: 0.0625rem solid rgba(193, 18, 31, 0.3); /* 1px */
+  color: #c1121f;
+}
+
+.register-card :deep(.n-alert--success-type) {
+  background-color: rgba(74, 78, 105, 0.1);
+  border: 0.0625rem solid rgba(74, 78, 105, 0.3); /* 1px */
+  color: var(--ultra-violet);
+}
+
+@media (max-width: 48rem) {
+  /* 768px = 48rem */
+  .register-container {
+    padding: 1rem;
+  }
+
+  .register-card {
+    max-width: 100%;
+  }
 }
 </style>
