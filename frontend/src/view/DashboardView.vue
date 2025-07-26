@@ -4,7 +4,12 @@
 
     <InsertTask @task-added="fetchTasks" />
 
-    <n-card class="tasks-section" title="Your Tasks" :bordered="false" size="medium">
+    <n-card
+      class="tasks-section"
+      title="Your Tasks"
+      :bordered="false"
+      size="medium"
+    >
       <div v-if="loading" class="loading">Loading tasks...</div>
       <div v-else-if="tasks.length === 0" class="no-tasks">No tasks found.</div>
 
@@ -22,12 +27,21 @@
               <div :class="{ completed: task.completed }" class="description">
                 {{ task.description }}
               </div>
-              <n-tag :type="priorityType(task.priority)" size="small" class="priority-tag">
+              <n-tag
+                :type="priorityType(task.priority)"
+                size="small"
+                class="priority-tag"
+              >
                 {{ capitalize(task.priority) }}
               </n-tag>
             </div>
 
-            <n-button size="small" tertiary circle @click="handleDelete(task.id)">
+            <n-button
+              size="small"
+              tertiary
+              circle
+              @click="handleDelete(task.id)"
+            >
               X
             </n-button>
           </div>
@@ -38,56 +52,82 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from "vue"
-import { NCard, NTag, NButton, NSpace } from "naive-ui"
-import { TrashOutline } from "@vicons/ionicons5"
-import InsertTask from "../../components/InsertTask.vue"
-import axios from "axios"
+import { ref, onMounted } from "vue";
+import { NCard, NTag, NButton, NSpace } from "naive-ui";
+import InsertTask from "../../components/InsertTask.vue";
+import axios from "axios";
 
-const tasks = ref([])
-const loading = ref(false)
+const tasks = ref([]);
+const loading = ref(false);
 
 const fetchTasks = async () => {
-  loading.value = true
+  loading.value = true;
   try {
-    const token = localStorage.getItem("authToken")
+    const token = localStorage.getItem("authToken");
     const response = await axios.get("http://localhost:1323/api/tasks", {
       headers: { Authorization: `Bearer ${token}` },
-    })
-    tasks.value = response.data.tasks || []
+    });
+    tasks.value = response.data.tasks || [];
   } catch {
-    tasks.value = []
+    tasks.value = [];
   } finally {
-    loading.value = false
+    loading.value = false;
   }
-}
+};
 
-onMounted(fetchTasks)
+onMounted(fetchTasks);
 
-const capitalize = (str) => str ? str.charAt(0).toUpperCase() + str.slice(1) : ""
+const capitalize = (str) =>
+  str ? str.charAt(0).toUpperCase() + str.slice(1) : "";
 
 const priorityType = (priority) => {
   switch (priority) {
-    case "high": return "error"
-    case "normal": return "warning"
-    case "low": return "success"
-    default: return "default"
+    case "high":
+      return "error";
+    case "normal":
+      return "warning";
+    case "low":
+      return "success";
+    default:
+      return "default";
   }
-}
+};
 
 // Assign light pastel backgrounds based on priority
 const cardColor = (priority) => {
   switch (priority) {
-    case "high": return "#fff1f0"  // light red
-    case "normal": return "#fffbe6"  // light yellow
-    case "low": return "#f6ffed"  // light green
-    default: return "#f8f9fa" // neutral light gray
+    case "high":
+      return "#fff1f0"; // light red
+    case "normal":
+      return "#fffbe6"; // light yellow
+    case "low":
+      return "#f6ffed"; // light green
+    default:
+      return "#f8f9fa"; // neutral light gray
   }
-}
+};
 
-const handleDelete = (id) => {
-  alert(`Delete task with id ${id}`)
-}
+const handleDelete = async (id) => {
+  loading.value = true;
+
+  try {
+    const token = localStorage.getItem("authToken");
+    await axios.delete(`http://localhost:1323/api/tasks/${id}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+    });
+
+    tasks.value = tasks.value.filter((task) => task.id !== id);
+  } catch (err) {
+    const error = ref("");
+    error.value = err.response?.data?.error || "Failed to delete task";
+    console.error(err);
+  } finally {
+    loading.value = false;
+  }
+};
 </script>
 
 <style scoped>

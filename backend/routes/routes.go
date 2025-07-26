@@ -27,4 +27,5 @@ func SetupRoutes(e *echo.Echo) {
 
 	protected.GET("/tasks", handlers.GetAllTasks)
 	protected.POST("/tasks", handlers.InsertTask)
+	protected.DELETE("/tasks/:id", handlers.DeleteTask)
 }

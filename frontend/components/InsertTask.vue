@@ -42,7 +42,6 @@
 
 <script setup>
 import { ref } from "vue";
-import { useMessage } from "naive-ui";
 import axios from "axios";
 
 const description = ref("");
@@ -60,8 +59,6 @@ const priorityOptions = [
 ];
 
 const handleInsert = async () => {
-  console.log("Insert triggered");
-
   error.value = "";
   success.value = "";
 

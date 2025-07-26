@@ -1,9 +1,11 @@
 package handlers
 
 import (
+	"fmt"
 	"net/http"
 	"pianpianino/database"
 	"pianpianino/models"
+	"strconv"
 
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/labstack/echo/v4"
@@ -81,4 +83,26 @@ func InsertTask(c echo.Context) error {
 		"message": "Task created successfully",
 		"task":    task,
 	})
+}
+
+func DeleteTask(c echo.Context) error {
+	taskIDString := c.Param("id")
+	taskID, err := strconv.Atoi(taskIDString)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, echo.Map{"error": "internal"})
+	}
+
+	fmt.Println("TASK:", taskID)
+
+	task := new(models.Task)
+	DB := database.GetDB()
+	_, err = DB.NewDelete().
+		Model(task).
+		Where("id = ?", taskID).
+		Exec(c.Request().Context())
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, echo.Map{"error": "could not delete task"})
+	}
+
+	return c.JSON(http.StatusOK, echo.Map{"message": "task deleted successfully"})
 }
