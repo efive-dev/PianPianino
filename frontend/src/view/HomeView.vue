@@ -104,32 +104,6 @@ import { RouterLink } from "vue-router";
   box-shadow: 0 0.25rem 0.75rem rgba(154, 140, 152, 0.3);
 }
 
-p {
-  font-size: 1.5rem;
-  color: var(--space-cadet);
-  text-shadow: 0 0.0625rem 0.125rem rgba(255, 255, 255, 0.3);
-  text-align: center;
-  max-width: 37.5rem;
-}
-
-i {
-  color: var(--ultra-violet);
-  font-style: italic;
-}
-
-b {
-  color: var(--rose-quartz);
-  font-weight: bold;
-}
-
-h1 {
-  font-size: 2.5rem;
-  color: var(--space-cadet);
-  text-shadow: 0 0.125rem 0.25rem rgba(255, 255, 255, 0.2);
-  margin-bottom: 1.5rem;
-  text-align: center;
-}
-
 @media (max-width: 768px) {
   .button-container {
     flex-direction: column;

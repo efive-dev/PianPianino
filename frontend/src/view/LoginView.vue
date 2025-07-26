@@ -123,12 +123,6 @@ const handleLogin = async () => {
   justify-content: center;
   align-items: center;
   min-height: 100vh;
-  background: linear-gradient(
-    135deg,
-    #ffffff 0%,
-    var(--isabelline) 30%,
-    #ffffff 100%
-  );
   background-attachment: fixed;
   padding: 2rem;
   position: relative;
