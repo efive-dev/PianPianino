@@ -78,7 +78,8 @@ func Login(c echo.Context) error {
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"user_id": user.ID,
-		"expiry":  time.Now().Add(2 * time.Hour).Unix(),
+		"exp":     time.Now().Add(2 * time.Hour).Unix(),
+		"iat":     time.Now().Unix(), // Issued at
 	})
 
 	tokenString, err := token.SignedString([]byte(jwtSecret))
@@ -86,5 +87,9 @@ func Login(c echo.Context) error {
 		return c.JSON(http.StatusInternalServerError, echo.Map{"error": "Could not create token"})
 	}
 
-	return c.JSON(http.StatusOK, echo.Map{"token": tokenString})
+	// Return both message and token
+	return c.JSON(http.StatusOK, echo.Map{
+		"message": "Login successful",
+		"token":   tokenString,
+	})
 }

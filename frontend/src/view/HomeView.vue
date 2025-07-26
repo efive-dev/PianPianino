@@ -17,6 +17,7 @@
 <script setup>
 import { RouterLink } from "vue-router";
 </script>
+
 <style scoped>
 .home-container {
   display: flex;
@@ -61,7 +62,7 @@ import { RouterLink } from "vue-router";
 
 .button-container {
   display: flex;
-  gap: 1.5rem; /* 24px */
+  gap: 1.5rem;
   margin-top: 2rem;
   flex-wrap: wrap;
   justify-content: center;
@@ -70,12 +71,12 @@ import { RouterLink } from "vue-router";
 .register-link,
 .login-link {
   display: inline-block;
-  padding: 0.75rem 1.5rem; /* 12px 24px */
+  padding: 0.75rem 1.5rem;
   text-decoration: none;
-  border-radius: 0.5rem; /* 8px */
+  border-radius: 0.5rem;
   transition: all 0.3s ease;
   font-weight: 600;
-  border: 0.125rem solid; /* 2px */
+  border: 0.125rem solid;
   background-color: white;
 }
 
@@ -87,8 +88,8 @@ import { RouterLink } from "vue-router";
 .register-link:hover {
   background-color: var(--ultra-violet);
   color: white;
-  transform: translateY(-0.125rem); /* -2px */
-  box-shadow: 0 0.25rem 0.75rem rgba(74, 78, 105, 0.3); /* 4px 12px */
+  transform: translateY(-0.125rem);
+  box-shadow: 0 0.25rem 0.75rem rgba(74, 78, 105, 0.3);
 }
 
 .login-link {
@@ -99,16 +100,16 @@ import { RouterLink } from "vue-router";
 .login-link:hover {
   background-color: var(--rose-quartz);
   color: white;
-  transform: translateY(-0.125rem); /* -2px */
-  box-shadow: 0 0.25rem 0.75rem rgba(154, 140, 152, 0.3); /* 4px 12px */
+  transform: translateY(-0.125rem);
+  box-shadow: 0 0.25rem 0.75rem rgba(154, 140, 152, 0.3);
 }
 
 p {
   font-size: 1.5rem;
   color: var(--space-cadet);
-  text-shadow: 0 0.0625rem 0.125rem rgba(255, 255, 255, 0.3); /* 1px 2px */
+  text-shadow: 0 0.0625rem 0.125rem rgba(255, 255, 255, 0.3);
   text-align: center;
-  max-width: 37.5rem; /* 600px */
+  max-width: 37.5rem;
 }
 
 i {
@@ -124,13 +125,12 @@ b {
 h1 {
   font-size: 2.5rem;
   color: var(--space-cadet);
-  text-shadow: 0 0.125rem 0.25rem rgba(255, 255, 255, 0.2); /* 2px 4px */
+  text-shadow: 0 0.125rem 0.25rem rgba(255, 255, 255, 0.2);
   margin-bottom: 1.5rem;
   text-align: center;
 }
 
-@media (max-width: 48rem) {
-  /* 768px */
+@media (max-width: 768px) {
   .button-container {
     flex-direction: column;
     align-items: center;
@@ -139,7 +139,7 @@ h1 {
 
   .register-link,
   .login-link {
-    width: 12.5rem; /* 200px */
+    width: 12.5rem;
     text-align: center;
   }
 

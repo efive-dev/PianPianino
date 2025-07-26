@@ -1,6 +1,6 @@
 <template>
-  <div class="register-container">
-    <n-card title="Create an Account" class="register-card" hoverable>
+  <div class="login-container">
+    <n-card title="Login" class="login-card" hoverable>
       <n-form
         :model="form"
         :rules="rules"
@@ -22,13 +22,8 @@
             show-password-on="click"
           />
         </n-form-item>
-        <n-button
-          type="primary"
-          block
-          @click="handleRegister"
-          :loading="loading"
-        >
-          Register
+        <n-button type="primary" block @click="handleLogin" :loading="loading">
+          Login
         </n-button>
         <n-alert
           v-if="errorMessage"
@@ -50,15 +45,20 @@
     </n-card>
   </div>
 </template>
+
 <script setup>
 import { ref } from "vue";
+import { useRouter } from "vue-router";
 import { NForm, NFormItem, NInput, NButton, NCard, NAlert } from "naive-ui";
 import axios from "axios";
-import router from "../../router";
+
+const router = useRouter();
+
 const form = ref({
   username: "",
   password: "",
 });
+
 const rules = {
   username: {
     required: true,
@@ -71,30 +71,46 @@ const rules = {
     trigger: ["blur", "input"],
   },
 };
+
 const formRef = ref(null);
 const errorMessage = ref("");
 const successMessage = ref("");
 const loading = ref(false);
-const handleRegister = async () => {
+
+const handleLogin = async () => {
   errorMessage.value = "";
   successMessage.value = "";
+
   const valid = await formRef.value?.validate();
   if (!valid) return;
+
   loading.value = true;
+
   try {
     const response = await axios.post(
-      "http://localhost:1323/register",
+      "http://localhost:1323/login",
       form.value
     );
+
+    // Store the JWT token
+    if (response.data.token) {
+      localStorage.setItem("authToken", response.data.token);
+
+      // Set default authorization header for future requests
+      axios.defaults.headers.common[
+        "Authorization"
+      ] = `Bearer ${response.data.token}`;
+    }
+
     successMessage.value = response.data.message;
     form.value.username = "";
     form.value.password = "";
 
     setTimeout(() => {
-      router.push("/login");
+      router.push("/dashboard");
     }, 1500);
   } catch (err) {
-    errorMessage.value = err.response?.data?.error || "Registration failed";
+    errorMessage.value = err.response?.data?.error || "Login failed";
   } finally {
     loading.value = false;
   }
@@ -102,7 +118,7 @@ const handleRegister = async () => {
 </script>
 
 <style scoped>
-.register-container {
+.login-container {
   display: flex;
   justify-content: center;
   align-items: center;
@@ -119,7 +135,7 @@ const handleRegister = async () => {
   overflow: hidden;
 }
 
-.register-container::before {
+.login-container::before {
   content: "";
   position: absolute;
   top: 0;
@@ -144,7 +160,7 @@ const handleRegister = async () => {
   pointer-events: none;
 }
 
-.register-card {
+.login-card {
   width: 100%;
   max-width: 25rem;
   border-radius: 1rem;
@@ -155,33 +171,33 @@ const handleRegister = async () => {
   z-index: 1;
 }
 
-.register-card :deep(.n-card-header) {
+.login-card :deep(.n-card-header) {
   color: var(--space-cadet);
   font-weight: 600;
   font-size: 1.5rem;
   text-align: center;
 }
 
-.register-card :deep(.n-form-item-label) {
+.login-card :deep(.n-form-item-label) {
   color: var(--ultra-violet);
   font-weight: 500;
 }
 
-.register-card :deep(.n-input) {
+.login-card :deep(.n-input) {
   border-color: var(--rose-quartz);
   border-radius: 0.5rem;
 }
 
-.register-card :deep(.n-input:hover) {
+.login-card :deep(.n-input:hover) {
   border-color: var(--ultra-violet);
 }
 
-.register-card :deep(.n-input:focus-within) {
+.login-card :deep(.n-input:focus-within) {
   border-color: var(--ultra-violet);
   box-shadow: 0 0 0 0.125rem rgba(74, 78, 105, 0.2);
 }
 
-.register-card :deep(.n-button) {
+.login-card :deep(.n-button) {
   background-color: var(--ultra-violet);
   color: white;
   border-radius: 0.5rem;
@@ -191,17 +207,17 @@ const handleRegister = async () => {
   margin-top: 1rem;
 }
 
-.register-card :deep(.n-button:hover) {
+.login-card :deep(.n-button:hover) {
   background-color: var(--space-cadet);
   transform: translateY(-0.0625rem);
   box-shadow: 0 0.25rem 0.75rem rgba(74, 78, 105, 0.3);
 }
 
-.register-card :deep(.n-button:active) {
+.login-card :deep(.n-button:active) {
   transform: translateY(0);
 }
 
-.register-card :deep(.n-button--loading) {
+.login-card :deep(.n-button--loading) {
   background-color: var(--rose-quartz);
 }
 
@@ -211,24 +227,24 @@ const handleRegister = async () => {
   border-radius: 0.5rem;
 }
 
-.register-card :deep(.n-alert--error-type) {
+.login-card :deep(.n-alert--error-type) {
   background-color: rgba(193, 18, 31, 0.1);
   border: 0.0625rem solid rgba(193, 18, 31, 0.3);
   color: #c1121f;
 }
 
-.register-card :deep(.n-alert--success-type) {
+.login-card :deep(.n-alert--success-type) {
   background-color: rgba(74, 78, 105, 0.1);
   border: 0.0625rem solid rgba(74, 78, 105, 0.3);
   color: var(--ultra-violet);
 }
 
 @media (max-width: 768px) {
-  .register-container {
+  .login-container {
     padding: 1rem;
   }
 
-  .register-card {
+  .login-card {
     max-width: 100%;
   }
 }
