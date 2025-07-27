@@ -10,8 +10,7 @@
       :bordered="false"
       size="medium"
     >
-      <div v-if="loading" class="loading">Loading tasks...</div>
-      <div v-else-if="tasks.length === 0" class="no-tasks">No tasks found.</div>
+      <div v-if="tasks.length === 0" class="no-tasks">No tasks found.</div>
 
       <n-space vertical size="large">
         <n-card
@@ -36,14 +35,14 @@
               </n-tag>
             </div>
 
-            <n-button
-              size="small"
-              tertiary
-              circle
-              @click="handleDelete(task.id)"
-            >
-              X
-            </n-button>
+            <div class="task-actions">
+              <n-button size="small" tertiary @click="handleDelete(task.id)">
+                Delete
+              </n-button>
+              <n-button size="small" secondary @click="toggleTask(task.id)">
+                {{ task.completed ? "Undo" : "Complete" }}
+              </n-button>
+            </div>
           </div>
         </n-card>
       </n-space>
@@ -54,14 +53,12 @@
 <script setup>
 import { ref, onMounted } from "vue";
 import { NCard, NTag, NButton, NSpace } from "naive-ui";
-import InsertTask from "../../components/InsertTask.vue";
+import InsertTask from "../components/InsertTask.vue";
 import axios from "axios";
 
 const tasks = ref([]);
-const loading = ref(false);
 
 const fetchTasks = async () => {
-  loading.value = true;
   try {
     const token = localStorage.getItem("authToken");
     const response = await axios.get("http://localhost:1323/api/tasks", {
@@ -70,8 +67,6 @@ const fetchTasks = async () => {
     tasks.value = response.data.tasks || [];
   } catch {
     tasks.value = [];
-  } finally {
-    loading.value = false;
   }
 };
 
@@ -93,7 +88,6 @@ const priorityType = (priority) => {
   }
 };
 
-// Assign light pastel backgrounds based on priority
 const cardColor = (priority) => {
   switch (priority) {
     case "high":
@@ -108,8 +102,6 @@ const cardColor = (priority) => {
 };
 
 const handleDelete = async (id) => {
-  loading.value = true;
-
   try {
     const token = localStorage.getItem("authToken");
     await axios.delete(`http://localhost:1323/api/tasks/${id}`, {
@@ -121,11 +113,26 @@ const handleDelete = async (id) => {
 
     tasks.value = tasks.value.filter((task) => task.id !== id);
   } catch (err) {
-    const error = ref("");
-    error.value = err.response?.data?.error || "Failed to delete task";
-    console.error(err);
-  } finally {
-    loading.value = false;
+    console.error(err.response?.data?.error || "Failed to delete task");
+  }
+};
+
+const toggleTask = async (id) => {
+  try {
+    const token = localStorage.getItem("authToken");
+    const res = await axios.patch(
+      `http://localhost:1323/api/tasks/${id}/toggle`,
+      {},
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+    fetchTasks();
+  } catch (err) {
+    console.error("Failed to toggle task:", err);
   }
 };
 </script>
@@ -148,14 +155,6 @@ h1 {
   border-radius: 0.75rem;
   padding: 1.5rem;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-}
-
-.loading,
-.no-tasks {
-  font-size: 1.25rem;
-  color: #5c6ac4;
-  text-align: center;
-  margin: 1rem 0;
 }
 
 .task-card {
@@ -194,5 +193,11 @@ h1 {
 
 .priority-tag {
   width: fit-content;
+}
+
+.task-actions {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
 }
 </style>

@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"fmt"
 	"net/http"
 	"pianpianino/database"
 	"pianpianino/models"
@@ -92,8 +91,6 @@ func DeleteTask(c echo.Context) error {
 		return c.JSON(http.StatusInternalServerError, echo.Map{"error": "internal"})
 	}
 
-	fmt.Println("TASK:", taskID)
-
 	task := new(models.Task)
 	DB := database.GetDB()
 	_, err = DB.NewDelete().
@@ -105,4 +102,41 @@ func DeleteTask(c echo.Context) error {
 	}
 
 	return c.JSON(http.StatusOK, echo.Map{"message": "task deleted successfully"})
+}
+
+func ToggleTaskCompleted(c echo.Context) error {
+	userID, err := getUserIDFromToken(c)
+	if err != nil {
+		return c.JSON(http.StatusUnauthorized, echo.Map{"error": "Invalid token"})
+	}
+
+	taskIDStr := c.Param("id")
+	taskID, err := strconv.Atoi(taskIDStr)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, echo.Map{"error": "Invalid task ID"})
+	}
+
+	DB := database.GetDB()
+	task := new(models.Task)
+
+	err = DB.NewSelect().
+		Model(task).
+		Where("id = ? AND user_id = ?", taskID, userID).
+		Scan(c.Request().Context())
+	if err != nil {
+		return c.JSON(http.StatusNotFound, echo.Map{"error": "Task not found"})
+	}
+
+	task.Completed = !task.Completed
+
+	_, err = DB.NewUpdate().
+		Model(task).
+		Column("completed").
+		Where("id = ?", taskID).
+		Exec(c.Request().Context())
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, echo.Map{"error": "Failed to toggle task completion"})
+	}
+
+	return c.JSON(http.StatusOK, echo.Map{"message": "Task completion toggled"})
 }

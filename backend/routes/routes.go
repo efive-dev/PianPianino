@@ -11,7 +11,7 @@ import (
 
 func SetupRoutes(e *echo.Echo) {
 	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
-		AllowOrigins: []string{"http://localhost:5173", "http://localhost:1323"},
+		AllowOrigins: []string{"http://localhost:5173", "http://localhost:1323/"},
 		AllowHeaders: []string{echo.HeaderOrigin, echo.HeaderContentType, echo.HeaderAccept, echo.HeaderAuthorization},
 	}))
 	// Public routes
@@ -28,4 +28,6 @@ func SetupRoutes(e *echo.Echo) {
 	protected.GET("/tasks", handlers.GetAllTasks)
 	protected.POST("/tasks", handlers.InsertTask)
 	protected.DELETE("/tasks/:id", handlers.DeleteTask)
+	protected.PATCH("/tasks/:id/toggle", handlers.ToggleTaskCompleted)
+
 }
