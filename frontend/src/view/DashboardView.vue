@@ -1,100 +1,104 @@
 <template>
-  <n-space vertical size="large" class="dashboard-container">
-    <h1>Dashboard</h1>
-
-    <div class="button-container">
-      <button
-        v-if="!showInsert"
-        class="add-task-btn"
-        @click="showInsert = true"
-      >
-        Add Task
-      </button>
-      <button v-else class="close-task-btn" @click="showInsert = false">
-        Close Task Form
-      </button>
+  <div class="dashboard-page">
+    <div class="dashboard-header">
+      <h1>Dashboard</h1>
+      <button class="logout-button" @click="handleLogout">Logout</button>
     </div>
 
-    <transition name="fade-slide">
-      <div v-show="showInsert" class="insert-task-wrapper">
-        <InsertTask @task-added="onTaskAdded" />
+    <n-space vertical size="large" class="dashboard-container">
+      <div class="button-container">
+        <button class="add-task-btn" @click="showInsert = !showInsert">
+          {{ showInsert ? "Hide Task Form" : "Add Task" }}
+        </button>
       </div>
-    </transition>
 
-    <n-card
-      class="tasks-section"
-      title="Your Tasks"
-      :bordered="false"
-      size="medium"
-    >
-      <n-space
-        justify="space-between"
-        align="center"
-        style="margin-bottom: 1rem"
+      <transition name="fade-slide">
+        <div v-if="showInsert" class="insert-task-wrapper">
+          <InsertTask @task-added="onTaskAdded" />
+        </div>
+      </transition>
+
+      <n-card
+        class="tasks-section"
+        title="Your Tasks"
+        :bordered="false"
+        size="medium"
       >
-        <div style="font-weight: bold">Your Tasks</div>
-        <n-select
-          v-model:value="sortOrder"
-          :options="[
-            { label: 'Newest First', value: 'desc' },
-            { label: 'Oldest First', value: 'asc' },
-          ]"
-          size="small"
-          style="width: 180px"
-        />
-      </n-space>
-
-      <div v-if="tasks.length === 0" class="no-tasks">No tasks found.</div>
-
-      <n-space vertical size="large">
-        <n-card
-          v-for="task in sortedTasks"
-          :key="task.id"
-          size="small"
-          class="task-card"
-          :hoverable="true"
-          :style="{ backgroundColor: cardColor(task.priority) }"
+        <n-space
+          justify="space-between"
+          align="center"
+          style="margin-bottom: 1rem"
         >
-          <div class="task-item">
-            <div class="task-text">
-              <div :class="{ completed: task.completed }" class="description">
-                {{ task.description }}
-              </div>
-              <div class="created-at">{{ formatDate(task.created_at) }}</div>
-              <n-tag
-                :type="priorityType(task.priority)"
-                size="small"
-                class="priority-tag"
-              >
-                {{ capitalize(task.priority) }}
-              </n-tag>
-            </div>
+          <div style="font-weight: bold">Your Tasks</div>
+          <n-select
+            v-model:value="sortOrder"
+            :options="[
+              { label: 'Newest First', value: 'desc' },
+              { label: 'Oldest First', value: 'asc' },
+            ]"
+            size="small"
+            style="width: 10rem"
+          />
+        </n-space>
 
-            <div class="task-actions">
-              <n-button size="small" tertiary @click="handleDelete(task.id)">
-                Delete
-              </n-button>
-              <n-button size="small" secondary @click="toggleTask(task.id)">
-                {{ task.completed ? "Undo" : "Complete" }}
-              </n-button>
+        <div v-if="tasks.length === 0" class="no-tasks">No tasks found.</div>
+
+        <n-space vertical size="large">
+          <n-card
+            v-for="task in sortedTasks"
+            :key="task.id"
+            size="small"
+            class="task-card"
+            :hoverable="true"
+            :style="{ backgroundColor: cardColor(task.priority) }"
+          >
+            <div class="task-item">
+              <div class="task-text">
+                <div :class="{ completed: task.completed }" class="description">
+                  {{ task.description }}
+                </div>
+                <div class="created-at">{{ formatDate(task.created_at) }}</div>
+                <n-tag
+                  :type="priorityType(task.priority)"
+                  size="small"
+                  class="priority-tag"
+                >
+                  {{ capitalize(task.priority) }}
+                </n-tag>
+              </div>
+
+              <div class="task-actions">
+                <n-button size="small" tertiary @click="handleDelete(task.id)">
+                  Delete
+                </n-button>
+                <n-button size="small" secondary @click="toggleTask(task.id)">
+                  {{ task.completed ? "Undo" : "Complete" }}
+                </n-button>
+              </div>
             </div>
-          </div>
-        </n-card>
-      </n-space>
-    </n-card>
-  </n-space>
+          </n-card>
+        </n-space>
+      </n-card>
+    </n-space>
+  </div>
 </template>
 
 <script setup>
 import { ref, onMounted, computed } from "vue";
-import { NCard, NTag, NButton, NSpace, NSelect } from "naive-ui";
-import InsertTask from "../components/InsertTask.vue";
+import { useRouter } from "vue-router";
 import axios from "axios";
+import InsertTask from "../components/InsertTask.vue";
 
+const router = useRouter();
 const tasks = ref([]);
 const loading = ref(false);
 const sortOrder = ref("desc");
-const showInsert = ref(false);
+const showInsert = ref(true); // Panel is shown by default
+
+const handleLogout = () => {
+  localStorage.removeItem("authToken");
+  router.push("/");
+};
 
 const fetchTasks = async () => {
   loading.value = true;
@@ -148,7 +152,6 @@ const cardColor = (priority) => {
 
 const handleDelete = async (id) => {
   loading.value = true;
-
   try {
     const token = localStorage.getItem("authToken");
     await axios.delete(`http://localhost:1323/api/tasks/${id}`, {
@@ -157,7 +160,6 @@ const handleDelete = async (id) => {
         "Content-Type": "application/json",
       },
     });
-
     tasks.value = tasks.value.filter((task) => task.id !== id);
   } catch (err) {
     console.error(err.response?.data?.error || "Failed to delete task");
@@ -168,7 +170,6 @@ const handleDelete = async (id) => {
 
 const toggleTask = async (id) => {
   loading.value = true;
-
   try {
     const token = localStorage.getItem("authToken");
     await axios.patch(
@@ -211,28 +212,56 @@ const sortedTasks = computed(() => {
 </script>
 
 <style scoped>
+.dashboard-page {
+  position: relative;
+}
+
+.dashboard-header {
+  position: relative;
+  padding: 1rem 1rem 0;
+  text-align: center;
+}
+
+.dashboard-header h1 {
+  font-size: 2rem;
+  font-weight: 700;
+  margin: 0;
+}
+
+.logout-button {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  padding: 0.5rem 1rem;
+  font-weight: 600;
+  background-color: white;
+  color: var(--rose-quartz);
+  border: 2px solid var(--rose-quartz);
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.logout-button:hover {
+  background-color: var(--rose-quartz);
+  color: white;
+  transform: translateY(-0.125rem);
+  box-shadow: 0 0.25rem 0.75rem rgba(154, 140, 152, 0.3);
+}
+
 .dashboard-container {
   max-width: 48rem;
   margin: 0 auto;
-  padding: 2rem 1rem;
-}
-
-h1 {
-  font-size: 2.5rem;
-  text-align: center;
-  margin-bottom: 1.5rem;
+  padding: 1rem;
 }
 
 .button-container {
   display: flex;
   justify-content: center;
-  margin-bottom: 1.5rem;
-  gap: 1rem;
+  margin-top: 1rem;
 }
 
-.add-task-btn,
-.close-task-btn {
-  display: inline-block;
+.add-task-btn {
   padding: 0.75rem 1.5rem;
   text-decoration: none;
   border-radius: 0.5rem;
@@ -244,8 +273,7 @@ h1 {
   cursor: pointer;
 }
 
-.add-task-btn:hover,
-.close-task-btn:hover {
+.add-task-btn:hover {
   background-color: var(--ultra-violet);
   color: white;
   transform: translateY(-0.125rem);
@@ -256,10 +284,10 @@ h1 {
   margin-bottom: 1.5rem;
 }
 
-/* Transition animation */
+/* Animation */
 .fade-slide-enter-active,
 .fade-slide-leave-active {
-  transition: opacity 0.4s ease, transform 0.4s ease;
+  transition: all 0.3s ease;
 }
 .fade-slide-enter-from,
 .fade-slide-leave-to {
