@@ -2,7 +2,24 @@
   <n-space vertical size="large" class="dashboard-container">
     <h1>Dashboard</h1>
 
-    <InsertTask @task-added="fetchTasks" />
+    <div class="button-container">
+      <button
+        v-if="!showInsert"
+        class="add-task-btn"
+        @click="showInsert = true"
+      >
+        Add Task
+      </button>
+      <button v-else class="close-task-btn" @click="showInsert = false">
+        Close Task Form
+      </button>
+    </div>
+
+    <transition name="fade-slide">
+      <div v-show="showInsert" class="insert-task-wrapper">
+        <InsertTask @task-added="onTaskAdded" />
+      </div>
+    </transition>
 
     <n-card
       class="tasks-section"
@@ -10,13 +27,17 @@
       :bordered="false"
       size="medium"
     >
-      <n-space justify="space-between" align="center" style="margin-bottom: 1rem;">
-        <div style="font-weight: bold;">Your Tasks</div>
+      <n-space
+        justify="space-between"
+        align="center"
+        style="margin-bottom: 1rem"
+      >
+        <div style="font-weight: bold">Your Tasks</div>
         <n-select
           v-model:value="sortOrder"
           :options="[
             { label: 'Newest First', value: 'desc' },
-            { label: 'Oldest First', value: 'asc' }
+            { label: 'Oldest First', value: 'asc' },
           ]"
           size="small"
           style="width: 180px"
@@ -73,6 +94,7 @@ import axios from "axios";
 const tasks = ref([]);
 const loading = ref(false);
 const sortOrder = ref("desc");
+const showInsert = ref(false);
 
 const fetchTasks = async () => {
   loading.value = true;
@@ -90,6 +112,10 @@ const fetchTasks = async () => {
 };
 
 onMounted(fetchTasks);
+
+const onTaskAdded = () => {
+  fetchTasks();
+};
 
 const capitalize = (str) =>
   str ? str.charAt(0).toUpperCase() + str.slice(1) : "";
@@ -110,13 +136,13 @@ const priorityType = (priority) => {
 const cardColor = (priority) => {
   switch (priority) {
     case "high":
-      return "#fff1f0"; // light red
+      return "#fff1f0";
     case "normal":
-      return "#fffbe6"; // light yellow
+      return "#fffbe6";
     case "low":
-      return "#f6ffed"; // light green
+      return "#f6ffed";
     default:
-      return "#f8f9fa"; // neutral light gray
+      return "#f8f9fa";
   }
 };
 
@@ -156,7 +182,10 @@ const toggleTask = async (id) => {
       }
     );
 
-    await fetchTasks();
+    const index = tasks.value.findIndex((task) => task.id === id);
+    if (index !== -1) {
+      tasks.value[index].completed = !tasks.value[index].completed;
+    }
   } catch (err) {
     console.error("Failed to toggle task:", err);
   } finally {
@@ -191,7 +220,51 @@ const sortedTasks = computed(() => {
 h1 {
   font-size: 2.5rem;
   text-align: center;
-  margin-bottom: 2rem;
+  margin-bottom: 1.5rem;
+}
+
+.button-container {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 1.5rem;
+  gap: 1rem;
+}
+
+.add-task-btn,
+.close-task-btn {
+  display: inline-block;
+  padding: 0.75rem 1.5rem;
+  text-decoration: none;
+  border-radius: 0.5rem;
+  transition: all 0.3s ease;
+  font-weight: 600;
+  border: 0.125rem solid var(--ultra-violet);
+  background-color: white;
+  color: var(--ultra-violet);
+  cursor: pointer;
+}
+
+.add-task-btn:hover,
+.close-task-btn:hover {
+  background-color: var(--ultra-violet);
+  color: white;
+  transform: translateY(-0.125rem);
+  box-shadow: 0 0.25rem 0.75rem rgba(74, 78, 105, 0.3);
+}
+
+.insert-task-wrapper {
+  margin-bottom: 1.5rem;
+}
+
+/* Transition animation */
+.fade-slide-enter-active,
+.fade-slide-leave-active {
+  transition: opacity 0.4s ease, transform 0.4s ease;
+}
+.fade-slide-enter-from,
+.fade-slide-leave-to {
+  opacity: 0;
+  transform: translateY(-10px);
 }
 
 .tasks-section {
@@ -243,6 +316,11 @@ h1 {
   text-decoration: line-through;
 }
 
+.created-at {
+  font-size: 0.85rem;
+  color: #888;
+}
+
 .priority-tag {
   width: fit-content;
 }
@@ -251,10 +329,5 @@ h1 {
   display: flex;
   gap: 0.5rem;
   align-items: center;
-}
-
-.created-at {
-  font-size: 0.85rem;
-  color: #888;
 }
 </style>
