@@ -1,4 +1,5 @@
 <template>
+  <HomeIcon></HomeIcon>
   <div class="dashboard-page">
     <div class="dashboard-header">
       <h1>Dashboard</h1>
@@ -88,6 +89,7 @@ import { ref, onMounted, computed } from "vue";
 import { useRouter } from "vue-router";
 import axios from "axios";
 import InsertTask from "../components/InsertTask.vue";
+import HomeIcon from "../components/HomeIcon.vue";
 
 const router = useRouter();
 const tasks = ref([]);

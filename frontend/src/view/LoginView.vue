@@ -1,4 +1,5 @@
 <template>
+  <HomeIcon></HomeIcon>
   <div class="login-container">
     <n-card title="Login" class="login-card" hoverable>
       <n-form
@@ -51,6 +52,7 @@ import { ref } from "vue";
 import { useRouter } from "vue-router";
 import { NForm, NFormItem, NInput, NButton, NCard, NAlert } from "naive-ui";
 import axios from "axios";
+import HomeIcon from "../components/HomeIcon.vue";
 
 const router = useRouter();
 

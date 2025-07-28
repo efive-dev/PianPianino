@@ -1,4 +1,5 @@
 <template>
+  <HomeIcon></HomeIcon>
   <div class="register-container">
     <n-card title="Create an Account" class="register-card" hoverable>
       <n-form
@@ -56,6 +57,8 @@ import { ref } from "vue";
 import { NForm, NFormItem, NInput, NButton, NCard, NAlert } from "naive-ui";
 import axios from "axios";
 import router from "../../router";
+import HomeIcon from "../components/HomeIcon.vue";
+
 const form = ref({
   username: "",
   password: "",

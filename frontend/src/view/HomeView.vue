@@ -1,4 +1,5 @@
 <template>
+  <HomeIcon></HomeIcon>
   <div class="home-container">
     <h1>Welcome to <i>PianPianino</i></h1>
     <p>Lazyly organize your life, find time for what really <b>counts</b>.</p>
@@ -16,6 +17,7 @@
 
 <script setup>
 import { RouterLink } from "vue-router";
+import HomeIcon from "../components/HomeIcon.vue";
 </script>
 
 <style scoped>
