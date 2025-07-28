@@ -19,23 +19,27 @@
       </n-form-item>
 
       <n-form-item>
-        <n-button
-          type="primary"
-          block
-          :loading="loading"
-          size="large"
-          @click="handleInsert"
-        >
+        <button class="submit-button" @click="handleInsert" :disabled="loading">
           {{ loading ? "Adding..." : "Add Task" }}
-        </n-button>
+        </button>
       </n-form-item>
 
-      <n-alert v-if="error" type="error" class="mt-4" :bordered="false">
-        {{ error }}
-      </n-alert>
-      <n-alert v-if="success" type="success" class="mt-4" :bordered="false">
-        {{ success }}
-      </n-alert>
+      <transition name="fade">
+        <n-alert v-if="error" type="error" class="form-alert" :bordered="false">
+          {{ error }}
+        </n-alert>
+      </transition>
+
+      <transition name="fade">
+        <n-alert
+          v-if="success"
+          type="success"
+          class="form-alert"
+          :bordered="false"
+        >
+          {{ success }}
+        </n-alert>
+      </transition>
     </n-form>
   </div>
 </template>
@@ -108,10 +112,43 @@ const handleInsert = async () => {
   background-color: white;
 }
 
-.success-msg {
-  color: #52c41a;
-  font-size: 0.95rem;
+/* Updated button styling to match the rest of the app */
+.submit-button {
+  width: 100%;
+  padding: 0.75rem 1.5rem;
+  text-decoration: none;
+  border-radius: 0.5rem;
+  transition: all 0.3s ease;
+  font-weight: 600;
+  font-size: 1rem;
+  border: 0.125rem solid var(--ultra-violet);
+  background-color: white;
+  color: var(--ultra-violet);
+  cursor: pointer;
+}
+
+.submit-button:hover:enabled {
+  background-color: var(--ultra-violet);
+  color: white;
+  transform: translateY(-0.125rem);
+  box-shadow: 0 0.25rem 0.75rem rgba(74, 78, 105, 0.3);
+}
+
+.submit-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.form-alert {
   margin-top: 1rem;
-  text-align: center;
+}
+
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.3s ease;
+}
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
 }
 </style>
