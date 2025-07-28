@@ -31,15 +31,28 @@
           style="margin-bottom: 1rem"
         >
           <div style="font-weight: bold">Your Tasks</div>
-          <n-select
-            v-model:value="sortOrder"
-            :options="[
-              { label: 'Newest First', value: 'desc' },
-              { label: 'Oldest First', value: 'asc' },
-            ]"
-            size="small"
-            style="width: 10rem"
-          />
+          <div style="display: block; gap: 0.5rem">
+            <n-select
+              v-model:value="sortOrder"
+              :options="[
+                { label: 'Newest First', value: 'desc' },
+                { label: 'Oldest First', value: 'asc' },
+              ]"
+              size="small"
+              style="width: 10rem; margin-bottom: 0.5rem"
+            />
+            <n-select
+              v-model:value="priorityFilter"
+              :options="[
+                { label: 'All', value: 'all' },
+                { label: 'High', value: 'high' },
+                { label: 'Normal', value: 'normal' },
+                { label: 'Low', value: 'low' },
+              ]"
+              size="small"
+              style="width: 10rem"
+            />
+          </div>
         </n-space>
 
         <div v-if="tasks.length === 0" class="no-tasks">No tasks found.</div>
@@ -95,7 +108,8 @@ const router = useRouter();
 const tasks = ref([]);
 const loading = ref(false);
 const sortOrder = ref("desc");
-const showInsert = ref(true); // Panel is shown by default
+const showInsert = ref(true);
+const priorityFilter = ref("all");
 
 const handleLogout = () => {
   localStorage.removeItem("authToken");
@@ -205,7 +219,15 @@ const formatDate = (isoString) => {
 };
 
 const sortedTasks = computed(() => {
-  return [...tasks.value].sort((a, b) => {
+  let filtered = [...tasks.value];
+
+  if (priorityFilter.value !== "all") {
+    filtered = filtered.filter((task) => {
+      return task.priority === priorityFilter.value;
+    });
+  }
+
+  return filtered.sort((a, b) => {
     const timeA = new Date(a.created_at).getTime();
     const timeB = new Date(b.created_at).getTime();
     return sortOrder.value === "asc" ? timeA - timeB : timeB - timeA;
