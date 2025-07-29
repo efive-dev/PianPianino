@@ -10,7 +10,7 @@ The app is built using the following technologies:
     - Naive ui as a component library.
     - Axios for http requests.
 
-![Demo](https://i.imgur.com/ZFOytYm.gif)
+![Demo](./assets/PianPianino.gif)
 
 The project also has a test suite for the backend, to run those use:
 ```bash
