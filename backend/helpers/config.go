@@ -8,9 +8,13 @@ import (
 )
 
 func LoadConfig(variableToReturn string) string {
-	err := godotenv.Load("./../.env")
+	// Try current directory first, then parent directory
+	err := godotenv.Load(".env")
 	if err != nil {
-		log.Fatal("error loading the config file")
+		err = godotenv.Load("./../.env")
+		if err != nil {
+			log.Fatal("error loading the config file")
+		}
 	}
 	return os.Getenv(variableToReturn)
 }
