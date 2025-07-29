@@ -2,13 +2,17 @@ package handlers
 
 import (
 	"net/http"
-	"pianpianino/database"
 	"pianpianino/models"
 	"strconv"
 
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/labstack/echo/v4"
+	"github.com/uptrace/bun"
 )
+
+type TaskHandler struct {
+	DB *bun.DB
+}
 
 type TaskRequest struct {
 	Description string            `json:"description" validate:"required"`
@@ -23,16 +27,15 @@ func getUserIDFromToken(c echo.Context) (int, error) {
 	return int(userID), nil
 }
 
-func GetAllTasks(c echo.Context) error {
+func (h *TaskHandler) GetAllTasks(c echo.Context) error {
 	userID, err := getUserIDFromToken(c)
 	if err != nil {
 		return c.JSON(http.StatusUnauthorized, echo.Map{"error": "Invalid token"})
 	}
 
-	DB := database.GetDB()
 	tasks := make([]models.Task, 0)
 
-	err = DB.NewSelect().
+	err = h.DB.NewSelect().
 		Model(&tasks).
 		Where("user_id = ?", userID).
 		Scan(c.Request().Context())
@@ -46,7 +49,7 @@ func GetAllTasks(c echo.Context) error {
 	})
 }
 
-func InsertTask(c echo.Context) error {
+func (h *TaskHandler) InsertTask(c echo.Context) error {
 	userID, err := getUserIDFromToken(c)
 	if err != nil {
 		return c.JSON(http.StatusUnauthorized, echo.Map{"error": "Invalid token"})
@@ -61,17 +64,14 @@ func InsertTask(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, echo.Map{"error": "Description is required"})
 	}
 
-	// Create new task
 	task := models.Task{
 		UserID:      int64(userID),
 		Description: req.Description,
 		Priority:    req.Priority,
-		Completed:   false, // Default to false
+		Completed:   false,
 	}
 
-	DB := database.GetDB()
-
-	_, err = DB.NewInsert().
+	_, err = h.DB.NewInsert().
 		Model(&task).
 		Exec(c.Request().Context())
 	if err != nil {
@@ -84,27 +84,26 @@ func InsertTask(c echo.Context) error {
 	})
 }
 
-func DeleteTask(c echo.Context) error {
+func (h *TaskHandler) DeleteTask(c echo.Context) error {
 	taskIDString := c.Param("id")
 	taskID, err := strconv.Atoi(taskIDString)
 	if err != nil {
-		return c.JSON(http.StatusInternalServerError, echo.Map{"error": "internal"})
+		return c.JSON(http.StatusBadRequest, echo.Map{"error": "Invalid task ID"})
 	}
 
 	task := new(models.Task)
-	DB := database.GetDB()
-	_, err = DB.NewDelete().
+	_, err = h.DB.NewDelete().
 		Model(task).
 		Where("id = ?", taskID).
 		Exec(c.Request().Context())
 	if err != nil {
-		return c.JSON(http.StatusBadRequest, echo.Map{"error": "could not delete task"})
+		return c.JSON(http.StatusBadRequest, echo.Map{"error": "Could not delete task"})
 	}
 
-	return c.JSON(http.StatusOK, echo.Map{"message": "task deleted successfully"})
+	return c.JSON(http.StatusOK, echo.Map{"message": "Task deleted successfully"})
 }
 
-func ToggleTaskCompleted(c echo.Context) error {
+func (h *TaskHandler) ToggleTaskCompleted(c echo.Context) error {
 	userID, err := getUserIDFromToken(c)
 	if err != nil {
 		return c.JSON(http.StatusUnauthorized, echo.Map{"error": "Invalid token"})
@@ -116,10 +115,9 @@ func ToggleTaskCompleted(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, echo.Map{"error": "Invalid task ID"})
 	}
 
-	DB := database.GetDB()
 	task := new(models.Task)
 
-	err = DB.NewSelect().
+	err = h.DB.NewSelect().
 		Model(task).
 		Where("id = ? AND user_id = ?", taskID, userID).
 		Scan(c.Request().Context())
@@ -129,7 +127,7 @@ func ToggleTaskCompleted(c echo.Context) error {
 
 	task.Completed = !task.Completed
 
-	_, err = DB.NewUpdate().
+	_, err = h.DB.NewUpdate().
 		Model(task).
 		Column("completed").
 		Where("id = ?", taskID).

@@ -2,6 +2,8 @@ package main
 
 import (
 	"pianpianino/database"
+	"pianpianino/handlers"
+	"pianpianino/helpers"
 	"pianpianino/models"
 	"pianpianino/routes"
 
@@ -9,10 +11,17 @@ import (
 )
 
 func main() {
-	database.InitDB()
+	db := database.InitDB()
 	models.Migrate()
 	e := echo.New()
 
-	routes.SetupRoutes(e)
+	authHandler := &handlers.AuthHandler{
+		DB:        database.GetDB(),
+		JWTSecret: helpers.LoadConfig("JWT_SECRET"),
+	}
+
+	taskHandler := &handlers.TaskHandler{DB: db}
+
+	routes.SetupRoutes(e, authHandler, taskHandler)
 	e.Logger.Fatal(e.Start(":1323"))
 }

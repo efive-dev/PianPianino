@@ -9,15 +9,17 @@ import (
 	"github.com/labstack/echo/v4/middleware"
 )
 
-func SetupRoutes(e *echo.Echo) {
+func SetupRoutes(e *echo.Echo, auth *handlers.AuthHandler, task *handlers.TaskHandler) {
 	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
 		AllowOrigins: []string{"http://localhost:5173", "http://localhost:1323/"},
 		AllowHeaders: []string{echo.HeaderOrigin, echo.HeaderContentType, echo.HeaderAccept, echo.HeaderAuthorization},
 	}))
-	// Public routes
-	e.POST("/register", handlers.Register)
-	e.POST("/login", handlers.Login)
 
+	// Public routes using struct methods
+	e.POST("/register", auth.Register)
+	e.POST("/login", auth.Login)
+
+	// Protected routes
 	protected := e.Group("/api")
 	jwtSecret := helpers.LoadConfig("JWT_SECRET")
 	protected.Use(echojwt.WithConfig(echojwt.Config{
@@ -25,9 +27,8 @@ func SetupRoutes(e *echo.Echo) {
 		TokenLookup: "header:Authorization:Bearer ",
 	}))
 
-	protected.GET("/tasks", handlers.GetAllTasks)
-	protected.POST("/tasks", handlers.InsertTask)
-	protected.DELETE("/tasks/:id", handlers.DeleteTask)
-	protected.PATCH("/tasks/:id/toggle", handlers.ToggleTaskCompleted)
-
+	protected.GET("/tasks", task.GetAllTasks)
+	protected.POST("/tasks", task.InsertTask)
+	protected.DELETE("/tasks/:id", task.DeleteTask)
+	protected.PATCH("/tasks/:id/toggle", task.ToggleTaskCompleted)
 }
