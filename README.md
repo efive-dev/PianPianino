@@ -49,6 +49,7 @@ The frontend will be available at `http://localhost/5173`.
 | `completed`   | BOOLEAN   | Not Null, Default: false                                                    |
 | `created_at`  | TIMESTAMP | Not Null, Default: CURRENT\_TIMESTAMP                                       |
 | `updated_at`  | TIMESTAMP | Not Null, Default: CURRENT\_TIMESTAMP                                       |
+
 **Notes**:
 - importance maps to the Importance enum with values:
   - 0 = NotSet
@@ -64,6 +65,7 @@ The frontend will be available at `http://localhost/5173`.
 | `id`       | INTEGER | Primary Key, Auto-increment |
 | `username` | TEXT    | Not Null, Unique            |
 | `password` | TEXT    | Not Null                    |
+
 **Notes**:
 - Tasks represents a one-to-many relationship with the Task model (has-many), joined by users.id = tasks.user_id.
 - username is unique and required.
