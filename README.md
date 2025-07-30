@@ -15,7 +15,7 @@ The app is built using the following technologies:
 The project also has a test suite for the backend, to run those use:
 ```bash
 cd backend/
-go test test/*
+go test ./tests/*
 ```
 
 ## Features
